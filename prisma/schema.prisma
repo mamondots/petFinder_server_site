@@ -1,0 +1,176 @@
+//* This is your Prisma schema file,
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id              String            @id @default(uuid())
+  name            String
+  email           String            @unique
+  password        String
+  role            UserRole
+  profilePhoto    String?
+  contactNumber   String
+  address         String
+  gender          Gender?           @default(Unknown)
+  status          UserStatus        @default(ACTIVE)
+  isDeleted       Boolean           @default(false)
+  createdAt       DateTime          @default(now())
+  updatedAt       DateTime          @updatedAt
+  adoptionRequest AdoptionRequest[]
+  pet             Pet[]
+  blog            Blog[]
+  comment         Comment[]
+  donation        Donation[]
+
+  @@map("users")
+}
+
+model Pet {
+  id                   String   @id @default(uuid())
+  name                 String
+  image                String
+  species              String
+  breed                String
+  color                String
+  age                  Int
+  gender               Gender
+  size                 String
+  location             String
+  description          String
+  temperament          String
+  medicalHistory       String
+  adoptionRequirements String
+  healthStatus         String
+  createdAt            DateTime @default(now())
+  updatedAt            DateTime @updatedAt
+
+  //* Define relationships
+  userId          String
+  user            User              @relation(fields: [userId], references: [id])
+  adoptionRequest AdoptionRequest[]
+
+  @@map("pets")
+}
+
+model AdoptionRequest {
+  id                     String        @id @default(uuid())
+  userId                 String
+  petId                  String
+  status                 RequestStatus @default(PENDING)
+  petsHousehold          String
+  petOwnershipExperience String
+  petsNeutered           OpinionOption @default(YES)
+  secureOutdoorArea      OpinionOption @default(YES)
+  animalSleep            AnimelSleep
+  animalAlonePeriodsTime OpinionOption @default(NO)
+  detailsSupport         String
+  createdAt              DateTime      @default(now())
+  updatedAt              DateTime      @updatedAt
+
+  //* Define relationships
+  user User @relation(fields: [userId], references: [id])
+  pet  Pet  @relation(fields: [petId], references: [id])
+
+  @@map("adoptionrequests")
+}
+
+model Blog {
+  id          String     @id @default(uuid())
+  title       String
+  description String
+  image       String
+  reference   String
+  tags        String[]
+  category    String
+  status      BlogStatus @default(DRAFT)
+  like       Int        @default(0)
+  publishedAt DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
+
+  //* Define relationships
+  userId  String
+  author  User      @relation(fields: [userId], references: [id])
+  comment Comment[]
+
+  @@map("blogs")
+}
+
+model Comment {
+  id        String   @id @default(uuid())
+  content   String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  //* Define relationships
+  blogId String
+  userId String
+  blog   Blog   @relation(fields: [blogId], references: [id])
+  author User   @relation(fields: [userId], references: [id])
+
+  @@map("comments")
+}
+
+model Donation {
+  id         String   @id @default(uuid())
+  amount     Float
+  donorName  String
+  donorEmail String
+  message    String?
+  donatedAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  //* Define relationships
+  userId String?
+  user   User?   @relation(fields: [userId], references: [id])
+
+  @@map("donations")
+}
+
+enum UserRole {
+  SUPER_ADMIN
+  ADMIN
+  USER
+}
+
+enum UserStatus {
+  ACTIVE
+  BLOCKED
+  DELETED
+}
+
+enum RequestStatus {
+  PENDING
+  APPROVED
+  REJECTED
+}
+
+enum Gender {
+  Male
+  Female
+  Unknown
+}
+
+enum AnimelSleep {
+  Outdoor
+  Indoor
+  Room
+  Garage
+  Crate
+}
+
+enum OpinionOption {
+  YES
+  NO
+}
+
+enum BlogStatus {
+  DRAFT
+  PUBLISHED
+}

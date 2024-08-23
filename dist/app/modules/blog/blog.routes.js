@@ -1,0 +1,21 @@
+"use strict";
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.blogRoutes = void 0;
+const express_1 = __importDefault(require("express"));
+const validateRequest_1 = __importDefault(require("../../middlewares/validateRequest"));
+const auth_1 = __importDefault(require("../../middlewares/auth"));
+const client_1 = require("@prisma/client");
+const blog_controller_1 = require("./blog.controller");
+const blog_validation_1 = require("./blog.validation");
+const router = express_1.default.Router();
+router.post("/add-blog", (0, auth_1.default)(client_1.UserRole.USER, client_1.UserRole.ADMIN), (0, validateRequest_1.default)(blog_validation_1.blogValidation.createBlogSchema), blog_controller_1.blogController.createBlog);
+router.patch("/published-blog/:blogId", (0, auth_1.default)(client_1.UserRole.SUPER_ADMIN, client_1.UserRole.ADMIN), blog_controller_1.blogController.publishedBlog);
+router.get("/", blog_controller_1.blogController.getAllBlogs);
+router.get("/my-blogs", (0, auth_1.default)(client_1.UserRole.USER, client_1.UserRole.ADMIN), blog_controller_1.blogController.getMyBlogs);
+router.get("/:blogId", (0, auth_1.default)(client_1.UserRole.SUPER_ADMIN, client_1.UserRole.ADMIN, client_1.UserRole.USER), blog_controller_1.blogController.getABlog);
+router.put("/:blogId", (0, auth_1.default)(client_1.UserRole.SUPER_ADMIN, client_1.UserRole.ADMIN, client_1.UserRole.USER), (0, validateRequest_1.default)(blog_validation_1.blogValidation.updateBlogSchema), blog_controller_1.blogController.updateABlog);
+router.delete("/:blogId", (0, auth_1.default)(client_1.UserRole.SUPER_ADMIN, client_1.UserRole.ADMIN, client_1.UserRole.USER), blog_controller_1.blogController.deleteABlog);
+exports.blogRoutes = router;

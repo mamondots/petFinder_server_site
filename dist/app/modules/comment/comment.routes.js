@@ -1,0 +1,20 @@
+"use strict";
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.commentRoutes = void 0;
+const express_1 = __importDefault(require("express"));
+const validateRequest_1 = __importDefault(require("../../middlewares/validateRequest"));
+const auth_1 = __importDefault(require("../../middlewares/auth"));
+const client_1 = require("@prisma/client");
+const comment_validation_1 = require("./comment.validation");
+const comment_controller_1 = require("./comment.controller");
+const router = express_1.default.Router();
+router.post("/", (0, auth_1.default)(client_1.UserRole.USER), (0, validateRequest_1.default)(comment_validation_1.commentValidation.createCommentSchema), comment_controller_1.commentController.createComment);
+router.get("/", comment_controller_1.commentController.getAllComment);
+router.get("/my-comments", (0, auth_1.default)(client_1.UserRole.USER), comment_controller_1.commentController.getMyComments);
+router.get("/:commentId", (0, auth_1.default)(client_1.UserRole.USER), comment_controller_1.commentController.getAComment);
+router.put("/:commentId", (0, auth_1.default)(client_1.UserRole.SUPER_ADMIN, client_1.UserRole.ADMIN, client_1.UserRole.USER), (0, validateRequest_1.default)(comment_validation_1.commentValidation.updateCommentSchema), comment_controller_1.commentController.updateAComment);
+router.delete("/:commentId", (0, auth_1.default)(client_1.UserRole.SUPER_ADMIN, client_1.UserRole.ADMIN, client_1.UserRole.USER), comment_controller_1.commentController.deleteAComment);
+exports.commentRoutes = router;
